@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Explore Saaree Store's silk saree showroom, style the complete look and discover the bridal edit.">
+  <meta name="theme-color" content="#401222">
+  <title>Saaree Store | The Silk Edit</title>
+  <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="store.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="hero" id="home">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="wordmark" href="#home"><img src="assets/mark.svg" alt="" width="35" height="35"><span>SAAREE STORE<small>THE SILK EDIT</small></span></a>
+      <button class="icon-button menu-toggle" type="button" aria-controls="nav-links" aria-expanded="false" aria-label="Open menu" data-action="menu">☰</button>
+      <div class="nav-links" id="nav-links"><a href="#archive">Archive</a><a href="#looks">Try the Look</a><a href="#rack">The Rack</a><a href="#muse">The Muse</a><a href="#bridal">Bridal</a></div>
+      <div class="nav-actions">
+        <button class="icon-button" data-action="wishlist" aria-label="Wishlist"><span data-icon="heart"></span><sup id="wishlist-count" hidden></sup></button>
+        <button class="icon-button" data-action="bag" aria-label="Shopping bag"><span data-icon="bag"></span><sup id="bag-count" hidden></sup></button>
+        <a class="pill nav-cta" href="#rack">Visit the Store <span aria-hidden="true">↗</span></a>
+      </div>
+    </nav>
+    <div class="hero-inner">
+      <p class="eyebrow"><span class="ornament">✦</span> THE SILK SHOWROOM <span class="ornament">✦</span></p>
+      <h1>Woven for<br>the <em>Divine.</em></h1>
+      <p class="hero-description">From temple loom to treasured drape. Discover a world of luminous silk, intricate borders and colour made for ceremony.</p>
+      <div class="hero-actions"><a class="pill primary" href="#looks">Try the Look <span aria-hidden="true">↗</span></a><a class="pill ivory" href="#rack">Browse the Rack <span aria-hidden="true">↗</span></a></div>
+    </div>
+    <div class="hero-index"><span>01 / THE SHOWROOM</span><span>THE SILK EDIT · VOL. 01</span></div>
+  </header>
+  <div class="ticker" aria-label="Featured collections"><div><span>✦ &nbsp; THE SILK EDIT &nbsp; ✦ &nbsp; TRY THE LOOK &nbsp; ✦ &nbsp; PURE ZARI &nbsp; ✦ &nbsp; THE BRIDAL COLLECTION &nbsp; ✦ &nbsp; THE MUSE &nbsp; </span><span aria-hidden="true">✦ &nbsp; THE SILK EDIT &nbsp; ✦ &nbsp; TRY THE LOOK &nbsp; ✦ &nbsp; PURE ZARI &nbsp; ✦ &nbsp; THE BRIDAL COLLECTION &nbsp; ✦ &nbsp; THE MUSE &nbsp; </span></div></div>
+
+  <main id="main">
+    <section class="section" id="archive">
+      <div class="heading split"><div><p class="eyebrow">01 / THE SAAREE STORE ARCHIVE</p><h2>Six moods.<br><em>Timeless drapes.</em></h2></div><p>From quiet mornings to festive evenings. Six ways to find a silk that feels like you.</p></div>
+      <div class="archive-grid" id="moods"></div>
+    </section>
+
+    <section class="section tinted" id="looks">
+      <div class="heading split"><div><p class="eyebrow">02 / THE STYLING ROOM</p><h2>Try the <em>Look.</em></h2></div><p>Eight drapes, styled head to toe. Choose a look to shop the pieces together or individually.</p></div>
+      <div class="look-layout"><div>
+        <div class="look-stage" id="look-stage" role="group" aria-label="Styled looks carousel"></div>
+        <div class="controls"><button class="circle" data-action="step" data-group="looks" data-delta="-1" aria-label="Previous look">←</button><p id="look-counter" aria-live="polite"></p><button class="circle" data-action="step" data-group="looks" data-delta="1" aria-label="Next look">→</button></div>
+        <p class="hint">Swipe, drag or use the arrows</p>
+      </div><aside class="look-panel" id="look-panel" aria-label="In this look"></aside></div>
+    </section>
+
+    <section class="section silk-section" id="silks">
+      <div class="heading split"><div><p class="eyebrow">03 / THE COLOUR STUDY</p><h2>Pick a <em>Silk.</em></h2></div><p>Explore colour, pattern and texture. Tap a card to see the details or add it straight to your bag.</p></div>
+      <div class="silk-strip" id="silk-strip" aria-label="Saree colour cards" tabindex="0"></div>
+    </section>
+
+    <section class="section tinted" id="rack">
+      <div class="heading centered"><p class="eyebrow">04 / THE COLLECTION</p><h2>Every silk, <em>on the rail.</em></h2><p>Explore the collection. Select a hanger to see the piece up close.</p></div>
+      <div class="filters" id="filters" aria-label="Filter the rack"></div>
+      <div class="rack-scroll" tabindex="0" aria-label="Clothing rail"><div id="rack-items" class="rack-items"></div></div>
+      <p class="hint" id="rack-count" aria-live="polite"></p>
+    </section>
+
+    <section class="section" id="muse">
+      <div class="heading centered"><p class="eyebrow">05 / THE MUSE FILM</p><h2>Feel the <em>drape.</em></h2><p>A closer look at the colours and folds of silk.</p></div>
+      <div class="film-layout"><div class="film-side" id="film-left" aria-hidden="true"></div>
+        <div class="film-frame">
+          <video id="film" controls muted playsinline preload="metadata" poster="assets/film-poster.webp" src="assets/muse.mp4" aria-label="Saaree Store digital lookbook film"></video>
+          <button class="sound pill" data-action="sound" aria-pressed="false">Sound off</button>
+        </div>
+        <div class="film-side reverse" id="film-right" aria-hidden="true"></div>
+      </div>
+      <div class="centered"><a class="pill primary" href="#rack">Shop the Collection <span aria-hidden="true">↗</span></a></div>
+    </section>
+
+    <section class="section reels-section" id="reels">
+      <div class="heading split"><div><p class="eyebrow">06 / THE MUSE REELS</p><h2>Silk, in <em>motion.</em></h2></div><div><p>Five short studies in colour and drape.</p><div class="controls"><button class="circle" data-action="step" data-group="reels" data-delta="-1" aria-label="Previous reel">←</button><button class="circle" data-action="rotate-reels" aria-label="Start reel rotation" aria-pressed="false">▷</button><button class="circle" data-action="step" data-group="reels" data-delta="1" aria-label="Next reel">→</button></div></div></div>
+      <div class="reel-arc" id="reel-arc" role="group" aria-label="Muse reels carousel"></div>
+    </section>
+
+    <section class="section bridal-section" id="bridal">
+      <div class="heading centered"><p class="eyebrow">07 / FOR THE MUHURTHAM AND EVERY VOW AFTER</p><h2>The Bridal <em>Collection.</em></h2></div>
+      <div class="bridal-arc" id="bridal-arc" role="group" aria-label="Bridal sarees carousel"></div>
+      <div id="bridal-info" class="centered bridal-info"></div>
+    </section>
+
+    <section class="section compare-section" id="weaves">
+      <div class="heading centered"><p class="eyebrow">08 / THE WEAVE STUDY</p><h2>Three silks, <em>one weave.</em></h2><p>Switch between three pieces for a closer look at their colour and pattern.</p></div>
+      <div class="weave" id="weave"></div>
+    </section>
+  </main>
+  <footer class="footer"><a class="wordmark" href="#home"><img src="assets/mark.svg" alt="" width="36" height="36"><span>SAAREE STORE<small>THE SILK EDIT</small></span></a><p>Showroom preview · Illustrative products, prices and digital lookbook.</p><a href="#home">Back to top ↑</a></footer>
+  <dialog id="product-dialog" class="dialog product-dialog" aria-labelledby="product-title"></dialog>
+  <dialog id="drawer" class="dialog drawer" aria-labelledby="drawer-title"></dialog>
+  <dialog id="reel-dialog" class="dialog reel-dialog" aria-labelledby="reel-title"></dialog>
+  <div class="toast" id="toast" role="status"></div>
+</body>
+</html>
