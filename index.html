@@ -29,6 +29,7 @@
       <p class="hero-description">From temple loom to treasured drape. Discover a world of luminous silk, intricate borders and colour made for ceremony.</p>
       <div class="hero-actions"><a class="pill primary" href="#looks">Try the Look <span aria-hidden="true">↗</span></a><a class="pill ivory" href="#rack">Browse the Rack <span aria-hidden="true">↗</span></a></div>
     </div>
+    <div class="silk-curtain" aria-hidden="true"><i></i><i></i></div>
     <div class="hero-index"><span>01 / THE SHOWROOM</span><span>THE SILK EDIT · VOL. 01</span></div>
   </header>
   <div class="ticker" aria-label="Featured collections"><div><span>✦ &nbsp; THE SILK EDIT &nbsp; ✦ &nbsp; TRY THE LOOK &nbsp; ✦ &nbsp; PURE ZARI &nbsp; ✦ &nbsp; THE BRIDAL COLLECTION &nbsp; ✦ &nbsp; THE MUSE &nbsp; </span><span aria-hidden="true">✦ &nbsp; THE SILK EDIT &nbsp; ✦ &nbsp; TRY THE LOOK &nbsp; ✦ &nbsp; PURE ZARI &nbsp; ✦ &nbsp; THE BRIDAL COLLECTION &nbsp; ✦ &nbsp; THE MUSE &nbsp; </span></div></div>
@@ -84,7 +85,9 @@
     </section>
 
     <section class="section compare-section" id="weaves">
-      <div class="heading centered"><p class="eyebrow">08 / THE WEAVE STUDY</p><h2>Three silks, <em>one weave.</em></h2><p>Switch between three pieces for a closer look at their colour and pattern.</p></div>
+      <div class="heading centered"><p class="eyebrow">08 / THE WEAVE STUDY</p><h2>Three silks, <em>one weave.</em></h2><p>See three silk textures weave together, then choose a piece to look closer.</p></div>
+      <canvas class="weave-ribbons" id="weave-ribbons" aria-hidden="true"></canvas>
+      <div class="centered"><button class="pill secondary weave-replay" data-action="replay-weave" hidden>Replay the weave ↻</button></div>
       <div class="weave" id="weave"></div>
     </section>
   </main>

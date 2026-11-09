@@ -1,4 +1,5 @@
 import {sarees, blouses, accessories, rack, products, moods, bridal, reels} from './catalog.js';
+import {createWeave} from './weave-motion.js';
 
 const byId = id => document.getElementById(id);
 const money = new Intl.NumberFormat('en-IN', {style:'currency', currency:'INR', maximumFractionDigits:0});
@@ -16,6 +17,8 @@ const filterNames = ['All pieces','Silk Sarees','Half Sarees','Blouses','Checked
 const sizes = ['34','36','38','40','42'];
 const groups = {looks:sarees, reels, bridal};
 const active = {looks:2, reels:2, bridal:2};
+const stages = {looks:byId('look-stage'), reels:byId('reel-arc'), bridal:byId('bridal-arc')};
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const compare = [sarees[5], sarees[1], sarees[2]];
 const productDialog = byId('product-dialog');
 const drawer = byId('drawer');
@@ -24,6 +27,7 @@ const film = byId('film');
 const storageKey = 'saaree-store:v1';
 let filter = 'All pieces';
 let selectedWeave = 0;
+const replayWeave = createWeave(byId('weave-ribbons'), compare, reducedMotion);
 let detail;
 let drawerType;
 let reelTimer;
@@ -115,22 +119,33 @@ function thumb(item) {
   return `<span class="thumb" aria-hidden="true">${item.symbol ?? image(item, 'front')}</span>`;
 }
 
-function carouselItems(group) {
-  const items = groups[group];
-  return [-2,-1,0,1,2].map(offset => {
-    const index = (active[group] + offset + items.length) % items.length;
-    return {item:items[index], index, offset, distance:Math.abs(offset)};
-  });
-}
-
-function carouselStyle({offset, distance}) {
-  return `style="--offset:${offset};--distance:${distance}"`;
+function positionCarousel(group) {
+  const size = groups[group].length;
+  const half = Math.floor(size / 2);
+  for (const card of stages[group].children) {
+    const index = Number(card.dataset.index);
+    const offset = (index - active[group] + size + half) % size - half;
+    const distance = Math.abs(offset);
+    const jump = Math.abs(offset - Number(card.dataset.offset)) > half;
+    card.classList.toggle('wrap-jump', jump);
+    card.dataset.offset = offset;
+    card.dataset.active = String(offset === 0);
+    card.style.setProperty('--offset', offset);
+    card.style.setProperty('--distance', distance);
+    card.tabIndex = distance > 2 ? -1 : 0;
+    card.setAttribute('aria-hidden', String(distance > 2));
+    if (group === 'looks') {
+      card.setAttribute('aria-pressed', String(offset === 0));
+    } else {
+      const selectedAction = group === 'reels' ? 'play' : 'product';
+      const label = group === 'reels' ? 'Play' : 'View';
+      card.dataset.action = offset === 0 ? selectedAction : 'select';
+      card.setAttribute('aria-label', `${offset === 0 ? label : 'Select'} ${card.dataset.title}`);
+    }
+  }
 }
 
 function renderLooks() {
-  byId('look-stage').innerHTML = carouselItems('looks').map(({item,index,offset,distance}) =>
-    `<button class="look-model" ${carouselStyle({offset,distance})} data-action="select" data-group="looks" data-index="${index}" aria-label="${item.name}" aria-pressed="${offset === 0}">${image(item)}</button>`
-  ).join('');
   const look = getLook();
   byId('look-counter').textContent = `${active.looks + 1} of ${sarees.length} · ${look[0].name}`;
   const subtotal = look.reduce((sum,item) => sum + salePrice(item),0);
@@ -165,30 +180,45 @@ function renderRack() {
     `<button class="filter" data-action="filter" data-filter="${name}" aria-pressed="${filter === name}">${name} <small>${rack.filter(item => matchesFilter(item,name)).length}</small></button>`
   ).join('');
   const pieces = filteredRack();
-  byId('rack-items').innerHTML = pieces.map(item =>
+  const rail = byId('rack-items');
+  const previous = new Map([...rail.children].map(hanger => [hanger.dataset.id,hanger.offsetLeft]));
+  rail.innerHTML = pieces.map(item =>
     `<button class="hanger" data-action="product" data-source="rack" data-id="${item.id}">
       ${image(item,'front')}<strong>${item.name}</strong><small>${price(salePrice(item))}</small>
     </button>`
   ).join('');
+  if (previous.size && !reducedMotion.matches) {
+    [...rail.children].forEach((hanger,index) => {
+      const left = previous.get(hanger.dataset.id);
+      const start = left === undefined ? {opacity:0,translate:'16px -18px'} : {translate:`${left - hanger.offsetLeft}px 0`};
+      hanger.animate([start,{opacity:1,translate:'0 0'}], {
+        duration:480, delay:left === undefined ? index * 28 : 0, easing:'cubic-bezier(.22,.72,.24,1)', fill:'backwards',
+      });
+    });
+  }
   byId('rack-count').textContent = `Explore the collection · ${pieces.length} ${pieces.length === 1 ? 'piece' : 'pieces'} · AI-generated studio imagery`;
 }
 
-function renderReels() {
-  byId('reel-arc').innerHTML = carouselItems('reels').map(({item,index,offset,distance}) =>
-    `<button class="reel-card" ${carouselStyle({offset,distance})} data-action="${offset === 0 ? 'play' : 'select'}" data-group="reels" data-index="${index}" aria-label="${offset === 0 ? 'Play' : 'Select'} ${item.title}">
+function mountCarousels() {
+  stages.looks.innerHTML = sarees.map((item,index) =>
+    `<button class="look-model" data-action="select" data-group="looks" data-index="${index}" aria-label="${item.name}">${image(item)}</button>`
+  ).join('');
+  stages.reels.innerHTML = reels.map((item,index) =>
+    `<button class="reel-card" data-group="reels" data-index="${index}" data-title="${item.title}">
       ${image(item.product)}<span class="reel-meta"><span>0${index+1}</span><span>0:06</span></span>
-      ${offset === 0 ? '<span class="reel-play" aria-hidden="true">▶</span><span class="reel-progress" aria-hidden="true"></span>' : ''}
+      <span class="reel-play" aria-hidden="true">▶</span><span class="reel-progress" aria-hidden="true"></span>
       <span class="reel-caption"><small>${item.product.fabric}</small><strong>${item.title}</strong><small>${item.scene}</small></span>
     </button>`
   ).join('');
-}
-
-function renderBridal() {
-  byId('bridal-arc').innerHTML = carouselItems('bridal').map(({item,index,offset,distance}) =>
-    `<button class="bridal-card" ${carouselStyle({offset,distance})} data-active="${offset === 0}" data-action="${offset === 0 ? 'product' : 'select'}" data-source="bridal" data-group="bridal" data-id="${item.id}" data-index="${index}" aria-label="${offset === 0 ? 'View' : 'Select'} ${item.name}">
+  stages.bridal.innerHTML = bridal.map((item,index) =>
+    `<button class="bridal-card" data-source="bridal" data-group="bridal" data-id="${item.id}" data-index="${index}" data-title="${item.name}">
       ${image(item)}${item.offer ? `<span class="offer">${item.offer}% off</span>` : ''}
     </button>`
   ).join('');
+  Object.keys(stages).forEach(positionCarousel);
+}
+
+function renderBridal() {
   const item = bridal[active.bridal];
   byId('bridal-info').innerHTML = `<h3>${item.name}</h3><p>${item.fabric} · ${item.note}</p><p class="cost">${price(salePrice(item))}</p>
     <div class="controls"><button class="circle" data-action="step" data-group="bridal" data-delta="-1" aria-label="Previous bridal saree">←</button>
@@ -204,18 +234,33 @@ function renderWeave() {
     ).join('')}</div><button class="pill primary" data-action="product" data-source="weave" data-id="${item.id}">View silk · ${price(salePrice(item))}</button></div>`;
 }
 
-const renderers = {looks:renderLooks,reels:renderReels,bridal:renderBridal};
+const renderers = {looks:renderLooks,bridal:renderBridal};
 
 function setActive(group, index) {
   const size = groups[group].length;
-  active[group] = (index + size) % size;
-  renderers[group]();
+  const next = (index + size) % size;
+  if (next === active[group]) return;
+  active[group] = next;
+  positionCarousel(group);
+  renderers[group]?.();
 }
 
-function openProduct(id, collection, source) {
+function openProduct(id, collection, source, origin) {
   detail = {id, collection, view:'front', size:'', source, availability:false};
   renderProduct();
   if (!productDialog.open) productDialog.showModal();
+  if (!origin || reducedMotion.matches) return;
+
+  const image = productDialog.querySelector('.product-image');
+  const start = origin.getBoundingClientRect();
+  const end = image.getBoundingClientRect();
+  if (!start.width || !end.width) return;
+  const x = start.left + start.width / 2 - end.left - end.width / 2;
+  const y = start.top + start.height / 2 - end.top - end.height / 2;
+  image.animate([
+    {translate:`${x}px ${y}px`, scale:Math.min(start.height / end.height,1), rotate:'-7deg'},
+    {translate:'0 0', scale:1, rotate:'0deg'},
+  ], {duration:560,easing:'cubic-bezier(.19,.73,.23,1)'});
 }
 
 function renderProduct() {
@@ -280,11 +325,23 @@ function stopReelRotation() {
 function playReel(index) {
   stopReelRotation();
   film.pause();
+  reelDialog.querySelector('video')?.pause();
+  setActive('reels',index);
   const reel = reels[index];
+  const adjacent = delta => {
+    const next = (index + delta + reels.length) % reels.length;
+    return `<button class="adjacent-reel" data-action="play" data-index="${next}" aria-label="${delta < 0 ? 'Previous' : 'Next'} reel: ${reels[next].title}">
+      ${image(reels[next].product)}<span aria-hidden="true">${delta < 0 ? '←' : '→'}</span>
+    </button>`;
+  };
+  reelDialog.style.setProperty('--reel-color', reel.product.color);
   reelDialog.innerHTML = `<div class="dialog-head"><h3 id="reel-title">${reel.title}</h3>
     <button class="circle" data-action="close" aria-label="Close reel">×</button></div>
-    <video src="assets/${reel.product.id}-reel.mp4" controls playsinline preload="metadata" aria-label="${reel.title}"></video>`;
-  reelDialog.showModal();
+    <div class="reel-player">${adjacent(-1)}
+      <video src="assets/${reel.product.id}-reel.mp4" controls playsinline preload="metadata" aria-label="${reel.title}"></video>
+    ${adjacent(1)}</div>`;
+  if (!reelDialog.open) reelDialog.showModal();
+  else keepFocus(reelDialog,'[data-action="close"]');
   const video = reelDialog.querySelector('video');
   video.play().catch(() => {});
 }
@@ -347,10 +404,13 @@ document.addEventListener('click', event => {
     case 'weave':
       selectedWeave = index;
       renderWeave();
+      replayWeave?.(selectedWeave);
       keepFocus(byId('weave'),'[aria-pressed="true"]');
       break;
+    case 'replay-weave': replayWeave?.(); break;
     case 'product':
-      openProduct(id, {rack:filteredRack(), silks:sarees, archive:sarees, bridal, weave:compare}[source], source);
+      openProduct(id, {rack:filteredRack(), silks:sarees, archive:sarees, bridal, weave:compare}[source], source,
+        source === 'rack' ? button.querySelector('img') : undefined);
       break;
     case 'product-step': {
       const collection = detail.collection;
@@ -429,22 +489,41 @@ for (const dialog of [productDialog,drawer,reelDialog]) {
 function enableSwipe(node, group) {
   let start;
   let suppressClick = false;
-  node.addEventListener('pointerdown', event => {
-    if (event.isPrimary && event.button === 0) start = {x:event.clientX,y:event.clientY};
-  });
-  node.addEventListener('pointerup', event => {
-    if (!start) return;
+
+  function finish(event) {
+    if (!start || event.pointerId !== start.id) return;
     const dx = event.clientX - start.x;
-    const dy = event.clientY - start.y;
+    const dragged = start.dragging;
     start = undefined;
-    if (Math.abs(dx) < 38 || Math.abs(dx) < Math.abs(dy)) return;
+    node.classList.remove('dragging');
+    node.style.removeProperty('--drag-x');
+    if (!dragged) return;
     suppressClick = true;
-    if (group === 'reels') stopReelRotation();
-    setActive(group,active[group] + (dx < 0 ? 1 : -1));
     setTimeout(() => { suppressClick = false; },0);
+    if (event.type === 'pointerup' && Math.abs(dx) >= 38) {
+      if (group === 'reels') stopReelRotation();
+      setActive(group,active[group] + (dx < 0 ? 1 : -1));
+    }
+  }
+
+  node.addEventListener('pointerdown', event => {
+    if (event.isPrimary && event.button === 0) start = {id:event.pointerId,x:event.clientX,y:event.clientY,dragging:false};
   });
-  node.addEventListener('pointercancel', () => { start = undefined; });
-  node.addEventListener('pointerleave', () => { start = undefined; });
+  node.addEventListener('pointermove', event => {
+    if (!start || event.pointerId !== start.id) return;
+    const dx = event.clientX - start.x;
+    if (!start.dragging) {
+      if (Math.abs(dx) < 8 || Math.abs(dx) <= Math.abs(event.clientY - start.y)) return;
+      start.dragging = true;
+      node.setPointerCapture(event.pointerId);
+      node.classList.add('dragging');
+    }
+    if (!reducedMotion.matches) node.style.setProperty('--drag-x', `${Math.max(-125,Math.min(125,dx * .78))}px`);
+  });
+  node.addEventListener('pointerup', finish);
+  node.addEventListener('pointercancel', finish);
+  node.addEventListener('lostpointercapture', finish);
+  node.addEventListener('pointerleave', event => { if (start && !start.dragging) finish(event); });
   node.addEventListener('click', event => {
     if (suppressClick) event.stopImmediatePropagation();
   },true);
@@ -465,20 +544,32 @@ for (const [id,items] of [['film-left',sarees.slice(0,3)],['film-right',sarees.s
   const strip = `<div>${items.map(item => image(item)).join('')}</div>`;
   byId(id).innerHTML = `<div>${strip}${strip}</div>`;
 }
+mountCarousels();
 renderLooks();
 renderSilks();
 renderRack();
-renderReels();
 renderBridal();
 renderWeave();
 updateCounts();
-enableSwipe(byId('look-stage'),'looks');
-enableSwipe(byId('reel-arc'),'reels');
-enableSwipe(byId('bridal-arc'),'bridal');
+for (const [group,stage] of Object.entries(stages)) enableSwipe(stage,group);
+
+document.querySelector('[data-action="replay-weave"]').hidden = !replayWeave || reducedMotion.matches;
+reducedMotion.addEventListener('change', () => {
+  document.querySelector('[data-action="replay-weave"]').hidden = !replayWeave || reducedMotion.matches;
+});
+
+const entrances = new IntersectionObserver(entries => {
+  for (const entry of entries) {
+    if (!entry.isIntersecting) continue;
+    entrances.unobserve(entry.target);
+    if (!reducedMotion.matches) entry.target.classList.add('entering');
+  }
+}, {threshold:.12});
+document.querySelectorAll('.section .heading, .archive-grid, .silk-strip').forEach(node => entrances.observe(node));
 
 for (const card of document.querySelectorAll('.silk-card')) {
   card.addEventListener('pointermove', event => {
-    if (event.pointerType !== 'mouse' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (event.pointerType !== 'mouse' || reducedMotion.matches) return;
     const rect = card.getBoundingClientRect();
     card.style.setProperty('--rx', `${(0.5 - (event.clientY - rect.top) / rect.height) * 11}deg`);
     card.style.setProperty('--ry', `${((event.clientX - rect.left) / rect.width - 0.5) * 13}deg`);
@@ -488,3 +579,36 @@ for (const card of document.querySelectorAll('.silk-card')) {
     card.style.removeProperty('--ry');
   });
 }
+
+const silkStrip = byId('silk-strip');
+let silkDrag;
+let suppressSilkClick = false;
+silkStrip.addEventListener('pointerdown', event => {
+  if (event.pointerType === 'mouse' && event.button === 0 && !event.target.closest('.circle')) {
+    silkDrag = {id:event.pointerId,x:event.clientX,left:silkStrip.scrollLeft};
+  }
+});
+silkStrip.addEventListener('pointermove', event => {
+  if (event.pointerId !== silkDrag?.id) return;
+  const dx = event.clientX - silkDrag.x;
+  if (!silkDrag.active && Math.abs(dx) < 7) return;
+  if (!silkDrag.active) {
+    silkDrag.active = true;
+    silkStrip.setPointerCapture(event.pointerId);
+    silkStrip.classList.add('dragging');
+  }
+  silkStrip.scrollLeft = silkDrag.left - dx;
+});
+function endSilkDrag(event) {
+  if (event.pointerId !== silkDrag?.id) return;
+  suppressSilkClick = !!silkDrag.active;
+  silkDrag = undefined;
+  silkStrip.classList.remove('dragging');
+  setTimeout(() => { suppressSilkClick = false; },0);
+}
+for (const eventName of ['pointerup','pointercancel','lostpointercapture','pointerleave']) {
+  silkStrip.addEventListener(eventName,endSilkDrag);
+}
+silkStrip.addEventListener('click', event => {
+  if (suppressSilkClick) event.stopImmediatePropagation();
+},true);

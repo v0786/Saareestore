@@ -65,9 +65,9 @@ h3{font-size:clamp(1.5rem,3vw,2.3rem)}
 .arch img{width:100%;height:100%;padding:.25rem .05rem 0;object-fit:contain;object-position:bottom;border-radius:inherit}
 .mood:hover .arch{transform:translateY(-7px);box-shadow:0 10px 22px #94613240}
 .look-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,33%);align-items:center;gap:clamp(1rem,3vw,2.6rem)}
-.look-stage,.reel-arc,.bridal-arc{position:relative;display:grid;place-items:center;overflow:hidden;isolation:isolate;touch-action:pan-y}
+.look-stage,.reel-arc,.bridal-arc{position:relative;display:grid;place-items:center;overflow:hidden;isolation:isolate;touch-action:pan-y pinch-zoom}
 .look-stage{min-height:clamp(260px,37vw,510px);background:radial-gradient(ellipse at 50% 72%,#efe0cf 1%,#fff9f0 72%);border:1px solid #e7d9c9;border-radius:1.2rem;cursor:grab}
-.look-model,.reel-card,.bridal-card{position:absolute;padding:0;--step:19%;--spread:20%;transform:translateX(calc(var(--offset) * var(--step))) rotate(calc(var(--offset) * 3deg)) scale(calc(1 - var(--distance) * .13));z-index:calc(10 - var(--distance));transition:transform .32s,opacity .25s;opacity:calc(1 - var(--distance) * .21)}
+.look-model,.reel-card,.bridal-card{position:absolute;padding:0;--step:19%;--spread:20%;transform:translateX(calc(var(--offset) * var(--step) + var(--drag-x, 0px))) rotate(calc(var(--offset) * 3deg)) scale(calc(1 - var(--distance) * .13));z-index:calc(10 - var(--distance));transition:transform .56s var(--glide),opacity .4s,filter .42s;opacity:calc(1 - var(--distance) * .21)}
 .look-model{height:94%;width:42%;border:0;background:none;filter:blur(calc(var(--distance) * .65px))}
 .look-model img{height:100%;width:100%;object-fit:contain;filter:drop-shadow(0 8px 10px #3b231b29)}
 .look-model:focus-visible{outline-offset:-4px}
@@ -105,8 +105,7 @@ h3{font-size:clamp(1.5rem,3vw,2.3rem)}
 .rack-scroll{overflow:auto;padding:1rem 0}
 .rack-items{display:flex;width:max-content;min-width:100%;justify-content:center;padding:0 1rem;position:relative}
 .rack-items::before{content:"";position:absolute;top:6px;left:0;right:0;height:7px;border-radius:6px;background:linear-gradient(#766b60,#f7eee5 48%,#7f756b 85%);box-shadow:0 2px 3px #452e2329}
-.hanger{position:relative;flex:0 0 clamp(112px,9.2vw,150px);padding:0 .05rem .3rem;background:none;border:0;min-width:0;animation:arrive .35s both}
-@keyframes arrive{from{opacity:0;translate:12px 0}}
+.hanger{position:relative;flex:0 0 clamp(112px,9.2vw,150px);padding:0 .05rem .3rem;background:none;border:0;min-width:0}
 .hanger img{height:clamp(125px,15vw,211px);width:100%;object-fit:contain;object-position:top;transition:transform .25s;filter:drop-shadow(0 8px 6px #2e180936)}
 .hanger:hover img,.hanger:focus-visible img{transform:translateY(-8px) scale(1.09);z-index:1}
 .hanger small,.hanger strong{display:block;text-align:center;font-size:.71rem}
@@ -125,7 +124,7 @@ h3{font-size:clamp(1.5rem,3vw,2.3rem)}
 .reels-section .heading p{color:#efd7c4}
 .reels-section .heading .controls{justify-content:flex-end}
 .reel-arc,.bridal-arc{height:clamp(290px,41vw,540px)}
-.reel-card,.bridal-card{--step:65%;width:clamp(130px,21%,235px);height:86%;overflow:hidden;border:1px solid #d7b387;border-radius:1.1rem;background:#e7c6a2;color:white;transform:perspective(700px) translateX(calc(var(--offset)*var(--step))) rotateY(calc(var(--offset)*-15deg)) scale(calc(1 - var(--distance)*.16))}
+.reel-card,.bridal-card{--step:65%;width:clamp(130px,21%,235px);height:86%;overflow:hidden;border:1px solid #d7b387;border-radius:1.1rem;background:#e7c6a2;color:white;transform:perspective(700px) translateX(calc(var(--offset)*var(--step) + var(--drag-x, 0px))) translateY(calc(var(--distance)*9px)) rotateY(calc(var(--offset)*-15deg)) scale(calc(1 - var(--distance)*.16))}
 .reel-card img,.bridal-card img{height:100%;width:100%;object-fit:contain;object-position:bottom}
 .reel-card::after{content:"";position:absolute;inset:0;background:linear-gradient(#1f11146b,transparent 34%,transparent 58%,#221017ed)}
 .reel-caption,.reel-meta,.reel-play,.reel-progress{position:absolute;z-index:1}
@@ -137,7 +136,7 @@ h3{font-size:clamp(1.5rem,3vw,2.3rem)}
 .reel-progress{height:2px;bottom:.35rem;left:.65rem;right:.65rem;background:linear-gradient(90deg,#f3c381 34%,#fff6e946 34%)}
 .bridal-section{background:#faf0e6}
 .bridal-section .heading{margin-bottom:1rem}
-.bridal-card{border-radius:50% 50% .5rem .5rem / 24% 24% .5rem .5rem;background:radial-gradient(ellipse at 50% 25%,#f4e5cf,#b88e6f);transform:translateX(calc(var(--offset)*var(--step))) rotate(calc(var(--offset)*9deg)) scale(calc(1 - var(--distance)*.13))}
+.bridal-card{border-radius:50% 50% .5rem .5rem / 24% 24% .5rem .5rem;background:radial-gradient(ellipse at 50% 25%,#f4e5cf,#b88e6f);transform:translateX(calc(var(--offset)*var(--step) + var(--drag-x, 0px))) translateY(calc(var(--distance)*12px)) rotate(calc(var(--offset)*9deg)) scale(calc(1 - var(--distance)*.13))}
 .bridal-card[data-active=true]{border:2px solid #b88947;box-shadow:0 10px 30px #4c261a38}
 .offer{position:absolute;top:19%;right:7%;background:var(--wine);color:white;border-radius:30px;font-size:.65rem;font-weight:700;padding:.23rem .45rem}
 .bridal-info p{color:var(--muted);margin-top:.4rem}
@@ -163,8 +162,8 @@ h3{font-size:clamp(1.5rem,3vw,2.3rem)}
 .drawer-row .quantity{display:flex;align-items:center;gap:.35rem}
 .drawer-total{display:flex;justify-content:space-between;gap:.5rem;font-weight:700;margin-top:1rem}
 .drawer-note{margin:.7rem 0;color:var(--muted);font-size:.84rem}
-.reel-dialog{max-width:430px}
-.reel-dialog video{width:100%;max-height:68dvh;display:block;background:#301522;border-radius:.7rem}
+.reel-dialog{max-width:760px}
+.reel-dialog video{width:100%;max-height:68dvh;display:block;background:#301522;border-radius:.7rem;animation:lift .42s var(--glide) both}
 .toast{position:fixed;bottom:1rem;left:50%;translate:-50% 0;z-index:20;pointer-events:none;max-width:90vw;background:#3b1424;color:#fff4e4;padding:.7rem 1rem;border-radius:30px;opacity:0;transition:opacity .15s;text-align:center;font-size:.85rem}
 .toast.show{opacity:1}
 @media(max-width:1000px){.nav-cta{display:none}.nav-links{gap:.85rem}.nav{gap:.6rem}.section{padding-inline:max(4vw,1rem)}}
@@ -199,3 +198,43 @@ h3{font-size:clamp(1.5rem,3vw,2.3rem)}
 .bundle-size select{border:1px solid var(--line);border-radius:20px;background:var(--paper);color:var(--ink);padding:.25rem .55rem}
 .film-side>div{gap:0;padding:0}
 .film-side>div>div{animation:none}
+
+:root{--glide:cubic-bezier(.22,.72,.22,1)}
+.silk-curtain{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;animation:curtain-clear 1.5s steps(1,end) both}
+.silk-curtain i{position:absolute;inset:0 49.9% 0 0;transform-origin:left center;background:#851329;box-shadow:0 0 60px #1e080dc4;animation:curtain-open 1.22s var(--glide) .23s both}
+.silk-curtain i:last-child{inset:0 0 0 49.9%;transform-origin:right center;animation-name:curtain-open-right}
+.silk-curtain i::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,#24020d78 0%,transparent 5%,#f5a25d2b 9%,#28000dbb 14%),url(assets/silk-curtain.webp) center/auto 105% repeat-x;background-blend-mode:multiply}
+@keyframes curtain-open{0%{transform:translateX(0) scaleX(1)} 100%{transform:translateX(-105%) scaleX(.72)}}
+@keyframes curtain-open-right{0%{transform:translateX(0) scaleX(1)} 100%{transform:translateX(105%) scaleX(.72)}}
+@keyframes curtain-clear{to{visibility:hidden}}
+.hero-inner>*{animation:lift .7s var(--glide) both}
+.hero-inner h1{animation-delay:.55s}
+.hero-inner .eyebrow{animation-delay:.47s}
+.hero-description{animation-delay:.63s}
+.hero-actions{animation-delay:.73s}
+.entering{animation:section-arrive .68s var(--glide) both}
+@keyframes section-arrive{from{opacity:.5;translate:0 24px}}
+.look-model[aria-hidden=true],.reel-card[aria-hidden=true],.bridal-card[aria-hidden=true]{opacity:0;pointer-events:none}
+.wrap-jump,.dragging>button{transition:none}
+.look-stage.dragging,.reel-arc.dragging,.bridal-arc.dragging,.silk-strip.dragging{cursor:grabbing;user-select:none}
+.dragging>button{cursor:grabbing}
+.reel-card[data-active=false] .reel-play,.reel-card[data-active=false] .reel-progress{display:none}
+.silk-strip{touch-action:pan-x pan-y pinch-zoom}
+.silk-strip.dragging{scroll-snap-type:none;scroll-behavior:auto}
+.silk-strip.dragging .silk-card{pointer-events:none}
+.product-dialog[open]::backdrop{animation:backdrop-in .35s ease-out both}
+@keyframes backdrop-in{from{opacity:0}}
+@media(min-width:701px) and (min-height:680px){.product-dialog[open]{overflow:visible}}
+.reel-dialog[open]{background:radial-gradient(ellipse at 50% 65%,var(--reel-color),#25111b 77%);color:#fff7eb;border-color:#e6bd8a61}
+.reel-player{display:grid;grid-template-columns:minmax(40px,1fr) minmax(0,2fr) minmax(40px,1fr);gap:clamp(.35rem,2vw,1rem);align-items:center}
+.adjacent-reel{position:relative;aspect-ratio:.63;padding:0;border-radius:.75rem;border:1px solid #ebc99c69;background:#e9c8a0;overflow:hidden;opacity:.68;transition:transform .3s,opacity .3s}
+.adjacent-reel:first-child{transform:perspective(460px) rotateY(20deg) scale(.89)}
+.adjacent-reel:last-child{transform:perspective(460px) rotateY(-20deg) scale(.89)}
+.adjacent-reel:hover,.adjacent-reel:focus-visible{opacity:1;transform:none}
+.adjacent-reel img{width:100%;height:100%;object-fit:contain;object-position:bottom}
+.adjacent-reel span{position:absolute;bottom:.25rem;left:50%;translate:-50%;background:#341722e6;color:white;width:1.85rem;height:1.85rem;display:grid;place-items:center;border-radius:50%}
+.weave-ribbons{display:block;width:100%;height:clamp(120px,22vw,295px);margin:-.5rem auto .2rem;max-width:1450px}
+.weave-replay{margin:0 auto 1.4rem}
+.compare-section .heading{margin-bottom:1rem}
+@media(max-width:700px){.reel-player{grid-template-columns:minmax(31px,.6fr) minmax(0,3fr) minmax(31px,.6fr)}}
+@media(prefers-reduced-motion:reduce){.silk-curtain{display:none}}
